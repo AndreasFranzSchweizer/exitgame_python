@@ -59,9 +59,8 @@ class RiddleRoom(Room):
         if answer.lower() == self.puzzle_answer.lower():
             self.locked = False
             return self
-        else:
-            print(f"Incorrect answer. You cannot enter {self.name} until you solve the puzzle.")
-            return None
+        print(f"Incorrect answer. You cannot enter {self.name} until you solve the puzzle.")
+        return None
 
         
     def enter(self):
