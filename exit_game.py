@@ -2,36 +2,41 @@ class Room:
     def __init__(self, name, description):
         self.name = name
         self.description = description
-        self.neighbors = []
+        self._neighbors = []
 
+        
     def add_neighbor(self, room):
-        self.neighbors.append(room)
-        room.neighbors.append(self)
+        self._neighbors.append(room)
+        room._neighbors.append(self)
 
+        
     def enter(self):
         print(f"You have entered {self.name}.")
         print(self.description)
         return self
 
+    
     def move_to_next_room(self):
-        if not self.neighbors:
+        if not self._neighbors:
             print("There are no neighboring rooms.")
             return self
         print(f"From {self.name}, you can go to:")
-        for i, neighbor in enumerate(self.neighbors):
+        for i, neighbor in enumerate(self._neighbors):
             print(f"{i+1}. {neighbor.name}")
         while True:
-            choice = input(f"Enter your choice (1-{len(self.neighbors)}): ")
+            choice = input(f"Enter your choice (1-{len(self._neighbors)}): ")
             if choice.isnumeric():
                 choice = int(choice)
-                if 1 <= choice <= len(self.neighbors):
-                    next_room = self.neighbors[choice - 1]
+                if 1 <= choice <= len(self._neighbors):
+                    next_room = self._neighbors[choice - 1]
                     print(f"You are now entering {next_room.name}.")
                     return next_room.enter()
 
+                
     def is_locked(self):
         return False
 
+    
     def __str__(self):
         return self.name
 
@@ -43,23 +48,25 @@ class RiddleRoom(Room):
         self.puzzle_answer = puzzle_answer
         self.locked = True
 
+        
     def is_locked(self):
         return self.locked
+
     
     def unlock(self):
         print(self.puzzle_question)
         answer = input().strip()
         if answer.lower() == self.puzzle_answer.lower():
             self.locked = False
+            return self
         else:
             print(f"Incorrect answer. You cannot enter {self.name} until you solve the puzzle.")
-            return
+            return None
 
+        
     def enter(self):
         if self.is_locked():
-            self.unlock()
-            if self.is_locked():
-                return
+            return self.unlock()
         return super().enter()
 
 
@@ -68,23 +75,28 @@ class Player:
         self._name = name
         self.current_room = room
 
+        
     @property
     def name(self):
         return self._name
-    
+ 
+
     def move_on(self):
         moved_to = self.current_room.move_to_next_room()
         if moved_to is not None:
             self.current_room = moved_to
 
+            
     def __str__(self):
         return self._name
 
+    
 def all_rooms_unlocked(rooms):
     for room in rooms:
         if room.is_locked():
             return False
     return True
+
 
 def main():
     # Create rooms
@@ -108,7 +120,7 @@ def main():
     room4.add_neighbor(room8)
     room5.add_neighbor(room9)
     
-    rooms = [room1,room2,room3,room4,room5,room6,room7,room8,room9]
+    rooms = [room1, room2, room3, room4, room5, room6, room7, room8, room9]
 
     # Create player
     playername = input("Enter your name: ")
