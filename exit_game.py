@@ -2,13 +2,16 @@ class Room:
     def __init__(self, name, description):
         self.name = name
         self.description = description
-        self._neighbors = []
+        self.__neighbors = []
 
         
     def add_neighbor(self, room):
-        self._neighbors.append(room)
-        room._neighbors.append(self)
-
+        """
+        :type room: Room
+        """
+        self.__neighbors.append(room)
+        if isinstance(room, Room):
+            room.__neighbors.append(self)
         
     def enter(self):
         print(f"You have entered {self.name}.")
@@ -17,18 +20,18 @@ class Room:
 
     
     def move_to_next_room(self):
-        if not self._neighbors:
+        if not self.__neighbors:
             print("There are no neighboring rooms.")
             return self
         print(f"From {self.name}, you can go to:")
-        for i, neighbor in enumerate(self._neighbors):
+        for i, neighbor in enumerate(self.__neighbors):
             print(f"{i+1}. {neighbor.name}")
         while True:
-            choice = input(f"Enter your choice (1-{len(self._neighbors)}): ")
+            choice = input(f"Enter your choice (1-{len(self.__neighbors)}): ")
             if choice.isnumeric():
                 choice = int(choice)
-                if 1 <= choice <= len(self._neighbors):
-                    next_room = self._neighbors[choice - 1]
+                if 1 <= choice <= len(self.__neighbors):
+                    next_room = self.__neighbors[choice - 1]
                     print(f"You are now entering {next_room.name}.")
                     return next_room.enter()
 
@@ -44,20 +47,20 @@ class Room:
 class RiddleRoom(Room):
     def __init__(self, name, description, puzzle_question, puzzle_answer):
         super().__init__(name, description)
-        self.puzzle_question = puzzle_question
-        self.puzzle_answer = puzzle_answer
-        self.locked = True
+        self.__puzzle_question = puzzle_question
+        self.__puzzle_answer = puzzle_answer
+        self.__locked = True
 
         
     def is_locked(self):
-        return self.locked
+        return self.__locked
 
     
-    def unlock(self):
-        print(self.puzzle_question)
+    def __unlock(self):
+        print(self.__puzzle_question)
         answer = input().strip()
-        if answer.lower() == self.puzzle_answer.lower():
-            self.locked = False
+        if answer.lower() == self.__puzzle_answer.lower():
+            self.__locked = False
             return self
         print(f"Incorrect answer. You cannot enter {self.name} until you solve the puzzle.")
         return None
@@ -65,29 +68,29 @@ class RiddleRoom(Room):
         
     def enter(self):
         if self.is_locked():
-            return self.unlock()
+            return self.__unlock()
         return super().enter()
 
 
 class Player:
     def __init__(self, name, room):
-        self._name = name
-        self.current_room = room
+        self.__name = name
+        self.__current_room = room
 
         
     @property
     def name(self):
-        return self._name
+        return self.__name
  
 
     def move_on(self):
-        moved_to = self.current_room.move_to_next_room()
+        moved_to = self.__current_room.move_to_next_room()
         if moved_to is not None:
-            self.current_room = moved_to
+            self.__current_room = moved_to
 
             
     def __str__(self):
-        return self._name
+        return self.__name
 
     
 def all_rooms_unlocked(rooms):
