@@ -1,99 +1,89 @@
+from typing import List, Optional
+
 class Room:
-    def __init__(self, name, description):
+    def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
-        self.__neighbors = []
+        self._neighbors: List["Room"] = []
 
-        
-    def add_neighbor(self, room):
-        """
-        :type room: Room
-        """
-        self.__neighbors.append(room)
+    def add_neighbor(self, room: "Room") -> None:
+        self._neighbors.append(room)
         if isinstance(room, Room):
-            room.__neighbors.append(self)
-        
-    def enter(self):
+            room._neighbors.append(self)
+
+    def enter(self) -> "Room":
         print(f"You have entered {self.name}.")
         print(self.description)
         return self
 
-    
-    def move_to_next_room(self):
-        if not self.__neighbors:
+    def move_to_next_room(self) -> "Room":
+        if not self._neighbors:
             print("There are no neighboring rooms.")
             return self
         print(f"From {self.name}, you can go to:")
-        for i, neighbor in enumerate(self.__neighbors):
-            print(f"{i+1}. {neighbor.name}")
+        for i, neighbor in enumerate(self._neighbors):
+            print(f"{i + 1}. {neighbor.name}")
         while True:
-            choice = input(f"Enter your choice (1-{len(self.__neighbors)}): ")
+            choice = input(f"Enter your choice (1-{len(self._neighbors)}): ")
             if choice.isnumeric():
                 choice = int(choice)
-                if 1 <= choice <= len(self.__neighbors):
-                    next_room = self.__neighbors[choice - 1]
+                if 1 <= choice <= len(self._neighbors):
+                    next_room = self._neighbors[choice - 1]
                     print(f"You are now entering {next_room.name}.")
                     return next_room.enter()
 
-                
-    def is_locked(self):
+    def is_locked(self) -> bool:
         return False
 
-    
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class RiddleRoom(Room):
-    def __init__(self, name, description, puzzle_question, puzzle_answer):
+    def __init__(self, name: str, description: str, puzzle_question: str, puzzle_answer: str):
         super().__init__(name, description)
-        self.__puzzle_question = puzzle_question
-        self.__puzzle_answer = puzzle_answer
-        self.__locked = True
+        self._puzzle_question = puzzle_question
+        self._puzzle_answer = puzzle_answer
+        self._locked = True
 
-        
-    def is_locked(self):
-        return self.__locked
+    def is_locked(self) -> bool:
+        return self._locked
 
-    
-    def __unlock(self):
-        print(self.__puzzle_question)
+    def _unlock(self) -> Optional["Room"]:
+        print(self._puzzle_question)
         answer = input().strip()
-        if answer.lower() == self.__puzzle_answer.lower():
-            self.__locked = False
+        if answer.lower() == self._puzzle_answer.lower():
+            self._locked = False
+            print("Nice, that's correct!")
             return self
         print(f"Incorrect answer. You cannot enter {self.name} until you solve the puzzle.")
         return None
 
-        
-    def enter(self):
+    def enter(self) -> Optional["Room"]:
         if self.is_locked():
-            return self.__unlock()
+            return self._unlock()
         return super().enter()
 
 
 class Player:
-    def __init__(self, name, room):
-        self.__name = name
-        self.__current_room = room
+    def __init__(self, name: str, room: "Room"):
+        self._name = name
+        self._current_room = room
 
-        
     @property
-    def name(self):
-        return self.__name
- 
+    def name(self) -> str:
+        return self._name
 
-    def move_on(self):
-        moved_to = self.__current_room.move_to_next_room()
+    def move_on(self) -> None:
+        moved_to = self._current_room.move_to_next_room()
         if moved_to is not None:
-            self.__current_room = moved_to
+            self._current_room = moved_to
 
-            
-    def __str__(self):
-        return self.__name
+    def __str__(self) -> str:
+        return self._name
 
-    
-def all_rooms_unlocked(rooms):
+
+def all_rooms_unlocked(rooms: List[Room]) -> bool:
     for room in rooms:
         if room.is_locked():
             return False
@@ -121,7 +111,7 @@ def main():
     room3.add_neighbor(room7)
     room4.add_neighbor(room8)
     room5.add_neighbor(room9)
-    
+
     rooms = [room1, room2, room3, room4, room5, room6, room7, room8, room9]
 
     # Create player
@@ -129,10 +119,12 @@ def main():
     player = Player(playername, room1)
 
     print(f"Welcome {player.name}! You start in {room1}")
-        
+
     while not all_rooms_unlocked(rooms):
         player.move_on()
 
     print("Great, you're done!")
 
-main()
+if __name__ == "__main__":
+    main()
+    
